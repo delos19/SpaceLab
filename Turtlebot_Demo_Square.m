@@ -10,11 +10,35 @@ for i = 1:5
     odomList(i,:) = [odom.Position(1) odom.Position(2)];
     
     %Move Forward
-    setVelocity(tb, 0.3, 0, 'Time', 3);
+    setVelocity(tb, 0.05, 0, 'Time', 60);
     pause(1)
     
     %Rotate 90 degrees
     setVelocity(tb, 0, pi/4, 'Time', 3);
+    pause(1)
+    
+     %Move Forward
+    setVelocity(tb, 0.05, 0, 'Time', 15);
+    pause(1)
+    
+    %Rotate 90 degrees
+    setVelocity(tb, 0, pi/4, 'Time', 3);
+    pause(1)
+    
+     %Move Forward
+    setVelocity(tb, 0.05, 0, 'Time', 60);
+    pause(1)
+    
+    %Rotate 90 degrees
+    setVelocity(tb, 0, -pi/4, 'Time', 3);
+    pause(1)
+    
+     %Move Forward
+    setVelocity(tb, 0.05, 0, 'Time', 15);
+    pause(1)
+    
+    %Rotate 90 degrees
+    setVelocity(tb, 0, -pi/4, 'Time', 3);
     pause(1)
     
     %Iterate
