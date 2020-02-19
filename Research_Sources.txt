@@ -1,0 +1,10 @@
+Notes and sources found online for ROS:
+
+
+edu.gaitech.hk/turtlebot/openCV-turtlebot.html
+
+
+
+
+
+
