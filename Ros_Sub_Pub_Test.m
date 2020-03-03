@@ -19,11 +19,20 @@ i = 1;
 %Set forward motion
 velmsg.Linear.X = velocity;
 Npts = 100;
-    odomdata = receive(odom,3);
-    pose = odomdata.Pose.Pose;
-    x0 = pose.Position.X
-    y0 = pose.Position.Y
-waypoints = [x0-1 y0]; % [x y] in meters 
+
+%Initialize the local odometer data
+odomdata = receive(odom,3);
+pose = odomdata.Pose.Pose;
+quat = pose.Orientation;
+angles = quat2eul([quat.W quat.X quat.Y quat.Z]);
+    
+
+%Store as origin
+x0 = pose.Position.X
+y0 = pose.Position.Y
+theta0 = rad2deg(angles(1))
+
+waypoints = [x0+2 y0+2]; % [x y] in meters 
 dx = 100;
 dy = 100;
 tol = 0.01; % meter
@@ -31,21 +40,29 @@ Pos = [];
 Vel = [];
 Velx = 0;
 Vely = 0;
+Angz = 0;
 Kx = 0.1;
 Ky = 0.1;
 figure('units','normalized','outerposition',[0 0 1 1])
 %Send message in loop
-while abs(dx) > tol || abs(dy) >tol
+while abs(dx) > tol || abs(dy) > tol
+    %Receive initial odometer data
     odomdata = receive(odom,3);
     pose = odomdata.Pose.Pose;
     x = pose.Position.X;
-    y = pose.Position.Y;
+    y = pose.Position.Y; %Where we need to change to get Z axis
+    
+    quat = pose.Orientation;
+    angles = quat2eul([quat.W quat.X quat.Y quat.Z]);
+    theta = rad2deg(angles(1))
+    
     odomList(i,:) = [x y];
     t1 = clock;
-%     velmsg.Linear.X = Velx;
+    velmsg.Linear.X = Velx;
     velmsg.Linear.Y = Vely;
-    
+    velmsg.Angular.Z = Angz;
     send(robot,velmsg);
+    
     dt = etime(clock, t1);
     odomdata = receive(odom,3);
     pose = odomdata.Pose.Pose;
@@ -64,12 +81,15 @@ while abs(dx) > tol || abs(dy) >tol
     plot(x,y,'-db'); hold on
     pause(0.008)
     
-    dx = (xn - waypoints(1));
+    dx = (xn- waypoints(1));
     dy = (yn - waypoints(2));
     
-    Velx = -Kx*dx;
-    Vely = -Ky*dy;
+    %As dx or dy get smaller, so does 
+    Velx = Kx*dx;
+    Vely = Ky*dx;
+    A = atan2(Vely,Velx);
     
+    Angz = sind(theta + A*dt);
 %     if abs(Velx)>1
 %         Velx = Velx/abs(Velx);
 %     end
